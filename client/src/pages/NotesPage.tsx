@@ -1,7 +1,8 @@
-// Main notes screen coordinating search, color filtering, and overlays.
+// Main notes screen coordinating search, color filtering, install banner, and overlays.
 
 import { FloatingActionButton } from '../components/FloatingActionButton';
 import { Header } from '../components/Header';
+import { InstallBanner } from '../components/InstallBanner';
 import { NoteOverlays } from '../components/NoteOverlays';
 import { NotesContent } from '../components/NotesContent';
 import { SearchBar } from '../components/SearchBar';
@@ -53,7 +54,8 @@ export function NotesPage({ onLockNow, onOpenSettings }: NotesPageProps) {
         selectedColor={search.colorFilter}
         onSelectColor={search.setColorFilter}
       />
-      <main className="flex-1 w-full pt-2">
+      <InstallBanner canInstall={page.pwa.canInstall} onInstall={handleInstall} />
+      <main className="flex-1 w-full pt-1">
         <NotesContent
           loading={notesHook.loading}
           error={notesHook.error}
@@ -61,10 +63,7 @@ export function NotesPage({ onLockNow, onOpenSettings }: NotesPageProps) {
           isSearching={search.isSearching}
           viewMode={page.viewMode}
           onRetry={notesHook.fetchNotes}
-          onClearSearch={() => {
-            search.setSearchQuery('');
-            search.setColorFilter(null);
-          }}
+          onClearSearch={() => { search.setSearchQuery(''); search.setColorFilter(null); }}
           onNewNote={page.modals.openNewNote}
           onSelectNote={page.modals.openEditNote}
           onTogglePin={page.togglePin}

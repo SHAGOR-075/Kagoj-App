@@ -1,14 +1,24 @@
-export function checkStandalone(): boolean {
+export function isRunningAsInstalledApp(): boolean {
   if (typeof window === 'undefined') return false;
-  return (
-    window.matchMedia('(display-mode: standalone)').matches ||
-    (window.navigator as unknown as { standalone?: boolean }).standalone === true
-  );
-}
 
-export function checkInstalledHint(): boolean {
-  if (typeof window === 'undefined') return false;
-  return localStorage.getItem('kagoj_pwa_installed') === '1';
+  const isStandalone = window.matchMedia?.('(display-mode: standalone)').matches ?? false;
+  const isFullscreen = window.matchMedia?.('(display-mode: fullscreen)').matches ?? false;
+  const isMinimalUi = window.matchMedia?.('(display-mode: minimal-ui)').matches ?? false;
+  const isIosStandalone = (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+  const isAndroidTwa = typeof document !== 'undefined' && Boolean(document.referrer?.startsWith('android-app://'));
+
+  const isBrowserMode = window.matchMedia?.('(display-mode: browser)').matches ?? false;
+  const hasInstalledHint = localStorage.getItem('kagoj_pwa_installed') === '1';
+  const isInstalledNonBrowser = hasInstalledHint && !isBrowserMode;
+
+  return Boolean(
+    isStandalone ||
+    isFullscreen ||
+    isMinimalUi ||
+    isIosStandalone ||
+    isAndroidTwa ||
+    isInstalledNonBrowser
+  );
 }
 
 export function detectPlatform() {
@@ -26,4 +36,3 @@ export function detectPlatform() {
 
   return { isIos, isIosSafari };
 }
-

@@ -1,4 +1,5 @@
 import { Download } from 'lucide-react';
+import { isRunningAsInstalledApp } from '../utils/pwaDetect';
 
 interface InstallButtonProps {
   canInstall: boolean;
@@ -6,7 +7,7 @@ interface InstallButtonProps {
 }
 
 export function InstallButton({ canInstall, onInstall }: InstallButtonProps) {
-  if (!canInstall) return null;
+  if (isRunningAsInstalledApp() || !canInstall) return null;
 
   return (
     <button
@@ -19,4 +20,3 @@ export function InstallButton({ canInstall, onInstall }: InstallButtonProps) {
     </button>
   );
 }
-
