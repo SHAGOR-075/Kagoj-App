@@ -69,3 +69,4 @@ export function InstallBanner({ canInstall, onInstall }: InstallBannerProps) {
     </div>
   );
 }
+
