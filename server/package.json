@@ -1,0 +1,38 @@
+{
+  "name": "kagoj-quick-notes-server",
+  "version": "1.0.0",
+  "description": "Express + MongoDB REST API backend for Kagoj Quick Notes",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node src/seed.js",
+    "migrate": "node src/scripts/migrateNotes.js"
+  },
+  "keywords": [
+    "express",
+    "mongodb",
+    "mongoose",
+    "kagoj",
+    "notes"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@simplewebauthn/server": "^14.1.0",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.7.3",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.9.5",
+    "nodemailer": "^10.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <rect width="512" height="512" rx="112" fill="#F4EFEA"/>
+  <!-- Paper sheet with folded corner -->
+  <path d="M140 108h172l80 80v216a24 24 0 0 1-24 24H140a24 24 0 0 1-24-24V132a24 24 0 0 1 24-24z" fill="#FFFFFF" stroke="#E6DFD5" stroke-width="8"/>
+  <path d="M312 108v64a16 16 0 0 0 16 16h64" fill="#EFE8DE" stroke="#E6DFD5" stroke-width="8"/>
+  <!-- Lined paper lines -->
+  <line x1="172" y1="236" x2="340" y2="236" stroke="#D8CFC4" stroke-width="12" stroke-linecap="round"/>
+  <line x1="172" y1="288" x2="340" y2="288" stroke="#D8CFC4" stroke-width="12" stroke-linecap="round"/>
+  <line x1="172" y1="340" x2="280" y2="340" stroke="#C28E5B" stroke-width="12" stroke-linecap="round"/>
+  <!-- Pen accent -->
+  <circle cx="360" cy="356" r="14" fill="#C28E5B"/>
+</svg>

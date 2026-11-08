@@ -1,0 +1,6 @@
+{
+  "name": "Kagoj Quick Notes",
+  "description": "A calm, mobile-first notepad web app for quick thoughts with auto-save, instant search, and offline support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
