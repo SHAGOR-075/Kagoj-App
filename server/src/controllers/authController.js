@@ -25,11 +25,14 @@ export function getJwtSecret() {
 const DUMMY_HASH = '$2a$12$e80yq206eZ88e7jN9Y9z8.yE9e9e9e9e9e9e9e9e9e9e9e9e9e9e9';
 
 export function getCookieOptions() {
-  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+  const isHttps =
+    (process.env.CLIENT_URL && process.env.CLIENT_URL.startsWith('https:')) ||
+    process.env.NODE_ENV === 'production' ||
+    Boolean(process.env.VERCEL);
   return {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    secure: Boolean(isHttps),
+    sameSite: isHttps ? 'none' : 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     path: '/',
   };

@@ -40,15 +40,18 @@ app.use(
       // Exact CLIENT_URL origin match or localhost for local testing
       if (
         origin === CLIENT_URL ||
+        origin === 'https://kagoj-app.vercel.app' ||
         origin === 'http://localhost:3000' ||
         origin === 'http://127.0.0.1:3000' ||
+        origin === 'http://localhost:5173' ||
+        origin === 'http://127.0.0.1:5173' ||
         (process.env.ORIGIN && origin === process.env.ORIGIN)
       ) {
         return callback(null, true);
       }
 
-      // In production, also allow vercel.app preview deployments if origin matches pattern
-      if (process.env.VERCEL && origin.endsWith('.vercel.app')) {
+      // Allow all vercel.app deployments (production & preview branches)
+      if (origin.endsWith('.vercel.app')) {
         return callback(null, true);
       }
 

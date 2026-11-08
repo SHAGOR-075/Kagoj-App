@@ -1,56 +1,105 @@
-// Hook to manage PWA installation prompt and platform detection.
-
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { checkInstalledHint, checkStandalone, detectPlatform } from '../utils/pwaDetect';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-export function usePWAInstall() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
+function checkStandalone(): boolean {
+  if (typeof window === 'undefined') return false;
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (window.navigator as unknown as { standalone?: boolean }).standalone === true
+  );
+}
+
+function checkInstalledHint(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('kagoj_pwa_installed') === '1';
+}
+
+function detectPlatform() {
+  if (typeof window === 'undefined') {
+    return { isIos: false, isIosSafari: false };
+  }
+  const ua = window.navigator.userAgent || '';
+  const platform = window.navigator.platform || '';
+  const maxTouch = window.navigator.maxTouchPoints || 0;
+
+  const isIos = /iPhone|iPad|iPod/i.test(ua) || (platform === 'MacIntel' && maxTouch > 1);
+  const isNonSafari = /CriOS|FxiOS|EdgiOS|OPiOS|GSA|Line|FBAN|FBAV|Instagram/i.test(ua);
+  const isWebKit = /WebKit/i.test(ua);
+  const isIosSafari = isIos && isWebKit && !isNonSafari && !/Chrome|Android/i.test(ua);
+
+  return { isIos, isIosSafari };
+}
+
+export function usePwaInstall() {
+  const [isInstalled, setIsInstalled] = useState(() => checkStandalone() || checkInstalledHint());
+  const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
+  const promptRef = useRef<BeforeInstallPromptEvent | null>(null);
+  const { isIos, isIosSafari } = detectPlatform();
 
   useEffect(() => {
-    const isStandalone =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-    setIsInstalled(isStandalone);
+    promptRef.current = promptEvent;
+  }, [promptEvent]);
 
-    const ua = window.navigator.userAgent.toLowerCase();
-    setIsIOS(/iphone|ipad|ipod/.test(ua));
+  useEffect(() => {
+    const mql = window.matchMedia('(display-mode: standalone)');
+    const onMqlChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        setIsInstalled(true);
+        localStorage.setItem('kagoj_pwa_installed', '1');
+      }
+    };
+    mql.addEventListener('change', onMqlChange);
 
-    const handlePrompt = (e: Event) => {
+    const onBeforeInstall = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      localStorage.removeItem('kagoj_pwa_installed');
+      setIsInstalled(false);
+      setPromptEvent(e as BeforeInstallPromptEvent);
     };
 
-    const handleInstalled = () => {
+    const onAppInstalled = () => {
+      setPromptEvent(null);
       setIsInstalled(true);
-      setDeferredPrompt(null);
+      localStorage.setItem('kagoj_pwa_installed', '1');
     };
 
-    window.addEventListener('beforeinstallprompt', handlePrompt);
-    window.addEventListener('appinstalled', handleInstalled);
+    window.addEventListener('beforeinstallprompt', onBeforeInstall);
+    window.addEventListener('appinstalled', onAppInstalled);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handlePrompt);
-      window.removeEventListener('appinstalled', handleInstalled);
+      mql.removeEventListener('change', onMqlChange);
+      window.removeEventListener('beforeinstallprompt', onBeforeInstall);
+      window.removeEventListener('appinstalled', onAppInstalled);
     };
   }, []);
 
-  const install = async () => {
-    if (!deferredPrompt) return false;
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setIsInstalled(true);
-      setDeferredPrompt(null);
-      return true;
+  const promptInstall = async () => {
+    if (isInstalled) return 'installed';
+    if (promptRef.current) {
+      const p = promptRef.current;
+      await p.prompt();
+      const choice = await p.userChoice;
+      setPromptEvent(null);
+      if (choice.outcome === 'accepted') {
+        setIsInstalled(true);
+        localStorage.setItem('kagoj_pwa_installed', '1');
+        return 'installed';
+      }
+      return 'dismissed';
     }
-    return false;
+    if (isIosSafari) return 'ios-safari';
+    if (isIos) return 'ios-non-safari';
+    return 'unsupported';
   };
 
-  return { isInstallable: !!deferredPrompt, isInstalled, isIOS, install };
+  const canInstall = !isInstalled && (Boolean(promptEvent) || isIos);
+
+  return { canInstall, isIos, isIosSafari, isInstalled, promptInstall };
 }
+
+export { usePwaInstall as usePWAInstall };

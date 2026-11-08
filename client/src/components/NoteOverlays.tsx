@@ -1,9 +1,9 @@
-// Container for editor, confirmation dialog, toast, install, and lock settings overlays.
+// Container for editor, confirmation dialog, toast, install guide, and lock settings overlays.
 
 import { ConfirmSheet } from './ConfirmSheet';
 import { EditorModal } from './EditorModal';
+import { InstallGuideSheet } from './InstallGuideSheet';
 import { LockSettingsModal } from './LockSettingsModal';
-import { PWAInstallModal } from './PWAInstallModal';
 import { Toast } from './Toast';
 import { useNotesPage } from '../hooks/useNotesPage';
 
@@ -31,11 +31,10 @@ export function NoteOverlays({ page }: NoteOverlaysProps) {
         onCancel={modals.cancelDelete}
       />
       <Toast toast={toast} onDismiss={dismissToast} />
-      <PWAInstallModal
+      <InstallGuideSheet
         isOpen={modals.showInstallGuide}
         onClose={() => modals.setShowInstallGuide(false)}
-        isIOS={pwa.isIOS}
-        onNativeInstall={pwa.install}
+        isIosSafari={pwa.isIosSafari}
       />
       <LockSettingsModal
         isOpen={page.showLockSettings}

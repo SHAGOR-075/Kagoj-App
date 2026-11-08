@@ -23,6 +23,15 @@ export function NotesPage({ onLockNow, onOpenSettings }: NotesPageProps) {
 
   const pinnedCount = notesHook.notes.filter((n) => n.pinned).length;
 
+  const handleInstall = async () => {
+    const result = await page.pwa.promptInstall();
+    if (result === 'installed') {
+      page.showToast('App installed');
+    } else if (result === 'ios-safari' || result === 'ios-non-safari') {
+      page.modals.setShowInstallGuide(true);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col transition-colors">
       <Header
@@ -32,8 +41,8 @@ export function NotesPage({ onLockNow, onOpenSettings }: NotesPageProps) {
         onToggleView={page.toggleView}
         isDark={isDark}
         onToggleTheme={toggleTheme}
-        isInstallable={!page.pwa.isInstalled}
-        onInstall={() => (page.pwa.isInstallable ? page.pwa.install() : page.modals.setShowInstallGuide(true))}
+        canInstall={page.pwa.canInstall}
+        onInstall={handleInstall}
         isLockEnabled={true}
         onOpenLockSettings={onOpenSettings || (() => {})}
         onLockNow={onLockNow || (() => {})}
@@ -52,7 +61,10 @@ export function NotesPage({ onLockNow, onOpenSettings }: NotesPageProps) {
           isSearching={search.isSearching}
           viewMode={page.viewMode}
           onRetry={notesHook.fetchNotes}
-          onClearSearch={() => { search.setSearchQuery(''); search.setColorFilter(null); }}
+          onClearSearch={() => {
+            search.setSearchQuery('');
+            search.setColorFilter(null);
+          }}
           onNewNote={page.modals.openNewNote}
           onSelectNote={page.modals.openEditNote}
           onTogglePin={page.togglePin}

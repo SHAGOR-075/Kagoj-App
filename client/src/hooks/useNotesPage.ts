@@ -60,6 +60,7 @@ export function useNotesPage({ notes, addNote, editNote, removeNote, restoreNote
   return {
     modals,
     toast,
+    showToast,
     dismissToast,
     pwa,
     lock,
